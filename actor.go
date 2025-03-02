@@ -3,8 +3,28 @@ package main
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
+
+	"github.com/google/uuid"
 )
+
+type Actor interface {
+	Start(ctx context.Context) error
+	Stop() error
+	SendMessage(Message) error
+	GetID() uuid.UUID
+	Execute()
+}
+
+type actor struct {
+	id       uuid.UUID
+	mailbox  chan Message
+	behavior Behaviour
+	wg       sync.WaitGroup
+	ctx      context.Context
+	cancel   context.CancelFunc
+}
 
 func (actor *actor) Start(ctx context.Context) error {
 	actor.ctx, actor.cancel = context.WithCancel(ctx)

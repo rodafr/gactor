@@ -7,6 +7,17 @@ import (
 	"github.com/google/uuid"
 )
 
+type ActorRegistry interface {
+	CreateActor(behavior func(string) string) (*actor, error)
+	GetActor(id uuid.UUID) (*actor, error)
+	ListActors() map[uuid.UUID]string
+}
+
+type actorRegistry struct {
+	actors map[uuid.UUID]*actor
+	mu     sync.RWMutex
+}
+
 func (r *actorRegistry) CreateActor(behavior Behaviour) (*actor, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
